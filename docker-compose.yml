@@ -1,0 +1,44 @@
+
+services:
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+
+    ports:
+      - "5431:80"
+
+    depends_on:
+      - cardapio-database
+  
+  cardapio-database:
+    image: postgres:15
+    container_name: cardapio-db
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - ./cardapio-backend/docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    environment:
+      POSTGRES_USER: cardapio
+      POSTGRES_PASSWORD: cardapio
+  
+  cardapio-api:
+    hostname: cardapio-api
+    container_name: cardapio-api
+
+    build:
+      context: ./cardapio-backend
+      dockerfile: Dockerfile
+
+    ports:
+      - "3000:3000"
+
+    depends_on:
+      - cardapio-database
+    
